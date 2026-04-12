@@ -4,16 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, ArrowLeftRight, PiggyBank, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLang } from "@/lib/i18n/context";
 
 const navItems = [
-  { href: "/dashboard", label: "Dasbor", icon: LayoutDashboard },
-  { href: "/transactions", label: "Transaksi", icon: ArrowLeftRight },
-  { href: "/budgets", label: "Anggaran", icon: PiggyBank },
-  { href: "/settings", label: "Pengaturan", icon: Settings },
+  { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/transactions", labelKey: "nav.transactions", icon: ArrowLeftRight },
+  { href: "/budgets", labelKey: "nav.budgets", icon: PiggyBank },
+  { href: "/settings", labelKey: "nav.settings", icon: Settings },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { t } = useLang();
 
   return (
     <aside className="hidden md:flex flex-col w-56 bg-white border-r border-slate-200 shrink-0">
@@ -24,7 +26,7 @@ export default function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 p-3 space-y-1">
-        {navItems.map(({ href, label, icon: Icon }) => (
+        {navItems.map(({ href, labelKey, icon: Icon }) => (
           <Link
             key={href}
             href={href}
@@ -36,7 +38,7 @@ export default function Sidebar() {
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />
-            {label}
+            {t(labelKey)}
           </Link>
         ))}
       </nav>

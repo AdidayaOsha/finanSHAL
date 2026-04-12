@@ -1,82 +1,76 @@
 import {
-  sqliteTable,
+  pgTable,
   text,
-  real,
-  integer,
+  boolean,
+  timestamp,
+  doublePrecision,
   primaryKey,
-} from "drizzle-orm/sqlite-core";
-import type { AdapterAccountType } from "next-auth/adapters";
+} from "drizzle-orm/pg-core";
 
-// ─── NextAuth required tables ────────────────────────────────────────────────
-// Column names and types must match @auth/drizzle-adapter expectations exactly.
+// ─── Better Auth required tables ─────────────────────────────────────────────
 
-export const users = sqliteTable("user", {
+export const users = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name"),
   email: text("email").notNull().unique(),
-  emailVerified: integer("emailVerified", { mode: "timestamp_ms" }),
+  emailVerified: boolean("email_verified").notNull().default(false),
   image: text("image"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
   // App-specific additions
   familyId: text("family_id").references(() => familyGroups.id),
   phoneNumber: text("phone_number").unique(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .$defaultFn(() => new Date()),
 });
 
-export const accounts = sqliteTable(
-  "account",
-  {
-    userId: text("userId")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    type: text("type").$type<AdapterAccountType>().notNull(),
-    provider: text("provider").notNull(),
-    providerAccountId: text("providerAccountId").notNull(),
-    refresh_token: text("refresh_token"),
-    access_token: text("access_token"),
-    expires_at: integer("expires_at"),
-    token_type: text("token_type"),
-    scope: text("scope"),
-    id_token: text("id_token"),
-    session_state: text("session_state"),
-  },
-  (account) => ({
-    compoundKey: primaryKey({
-      columns: [account.provider, account.providerAccountId],
-    }),
-  })
-);
-
-export const sessions = sqliteTable("session", {
-  sessionToken: text("sessionToken").primaryKey(),
-  userId: text("userId")
+export const sessions = pgTable("session", {
+  id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at").notNull(),
+  token: text("token").notNull().unique(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
 });
 
-export const verificationTokens = sqliteTable(
-  "verificationToken",
-  {
-    identifier: text("identifier").notNull(),
-    token: text("token").notNull(),
-    expires: integer("expires", { mode: "timestamp_ms" }).notNull(),
-  },
-  (vt) => ({
-    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
-);
+export const accounts = pgTable("account", {
+  id: text("id").primaryKey(),
+  accountId: text("account_id").notNull(),
+  providerId: text("provider_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"),
+  accessTokenExpiresAt: timestamp("access_token_expires_at"),
+  refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+  scope: text("scope"),
+  password: text("password"),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const verifications = pgTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at"),
+  updatedAt: timestamp("updated_at"),
+});
 
 // ─── App tables ───────────────────────────────────────────────────────────────
 
-export const familyGroups = sqliteTable("family_groups", {
+export const familyGroups = pgTable("family_groups", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .$defaultFn(() => new Date()),
+  createdAt: timestamp("created_at").$defaultFn(() => new Date()),
 });
 
-export const categories = sqliteTable("categories", {
+export const categories = pgTable("categories", {
   id: text("id").primaryKey(),
   familyId: text("family_id")
     .notNull()
@@ -85,10 +79,10 @@ export const categories = sqliteTable("categories", {
   type: text("type", { enum: ["expense", "savings"] })
     .notNull()
     .default("expense"),
-  isDefault: integer("is_default", { mode: "boolean" }).notNull().default(false),
+  isDefault: boolean("is_default").notNull().default(false),
 });
 
-export const transactions = sqliteTable("transactions", {
+export const transactions = pgTable("transactions", {
   id: text("id").primaryKey(),
   familyId: text("family_id")
     .notNull()
@@ -99,18 +93,17 @@ export const transactions = sqliteTable("transactions", {
   categoryId: text("category_id")
     .notNull()
     .references(() => categories.id),
-  amount: real("amount").notNull(),
+  amount: doublePrecision("amount").notNull(),
   currency: text("currency").notNull().default("IDR"),
   notes: text("notes"),
-  date: integer("date", { mode: "timestamp" }).notNull(),
+  date: timestamp("date").notNull(),
   source: text("source", { enum: ["whatsapp", "web"] })
     .notNull()
     .default("web"),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .$defaultFn(() => new Date()),
+  createdAt: timestamp("created_at").$defaultFn(() => new Date()),
 });
 
-export const budgets = sqliteTable("budgets", {
+export const budgets = pgTable("budgets", {
   id: text("id").primaryKey(),
   familyId: text("family_id")
     .notNull()
@@ -118,17 +111,17 @@ export const budgets = sqliteTable("budgets", {
   categoryId: text("category_id")
     .notNull()
     .references(() => categories.id),
-  limitAmount: real("limit_amount").notNull(),
+  limitAmount: doublePrecision("limit_amount").notNull(),
   monthYear: text("month_year").notNull(), // YYYY-MM
 });
 
-export const familyInvites = sqliteTable("family_invites", {
+export const familyInvites = pgTable("family_invites", {
   id: text("id").primaryKey(),
   familyId: text("family_id")
     .notNull()
     .references(() => familyGroups.id),
   invitedEmail: text("invited_email"),
   token: text("token").notNull().unique(),
-  expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
-  usedAt: integer("used_at", { mode: "timestamp" }),
+  expiresAt: timestamp("expires_at").notNull(),
+  usedAt: timestamp("used_at"),
 });

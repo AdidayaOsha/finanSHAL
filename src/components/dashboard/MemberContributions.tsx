@@ -1,5 +1,8 @@
+"use client";
+
 import { formatCurrency } from "@/lib/utils";
 import type { MemberContribution } from "@/types";
+import { useLang } from "@/lib/i18n/context";
 
 interface MemberContributionsProps {
   contributions: MemberContribution[];
@@ -18,14 +21,16 @@ export default function MemberContributions({
   contributions,
   total,
 }: MemberContributionsProps) {
+  const { t } = useLang();
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5 h-full">
       <h2 className="text-sm font-semibold text-slate-700 mb-4">
-        Kontribusi Anggota
+        {t("contributions.title")}
       </h2>
       {contributions.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-8">
-          Belum ada transaksi
+          {t("contributions.empty")}
         </p>
       ) : (
         <ul className="space-y-3">
@@ -48,7 +53,7 @@ export default function MemberContributions({
       )}
       {total > 0 && (
         <div className="mt-4 pt-4 border-t border-slate-100 text-sm text-slate-500 flex justify-between">
-          <span>Total</span>
+          <span>{t("contributions.total")}</span>
           <span className="font-semibold text-slate-800">{formatCurrency(total)}</span>
         </div>
       )}

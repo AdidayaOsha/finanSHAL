@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { familyInvites, users, familyGroups } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -12,8 +13,8 @@ const InviteSchema = z.object({
 
 // POST /api/family/invite — generate an invite link (or email-specific invite)
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -42,8 +43,8 @@ export async function POST(req: NextRequest) {
 
 // GET /api/family/invite?token=xxx — accept invite
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -64,7 +65,7 @@ export async function GET(req: NextRequest) {
   await db
     .update(users)
     .set({ familyId: invite.familyId })
-    .where(eq(users.id, session.user.id));
+    .where(eq(users.id, session.user.id as string));
 
   // Mark invite as used
   await db

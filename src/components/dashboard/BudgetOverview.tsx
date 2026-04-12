@@ -1,5 +1,8 @@
+"use client";
+
 import { formatCurrency } from "@/lib/utils";
 import type { Budget } from "@/types";
+import { useLang } from "@/lib/i18n/context";
 
 interface BudgetOverviewProps {
   budgets: (Budget & { spent: number })[];
@@ -7,14 +10,17 @@ interface BudgetOverviewProps {
 }
 
 export default function BudgetOverview({ budgets, showFull }: BudgetOverviewProps) {
+  const { t } = useLang();
   const displayed = showFull ? budgets : budgets.slice(0, 4);
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5">
-      <h2 className="text-sm font-semibold text-slate-700 mb-4">Anggaran Bulan Ini</h2>
+      <h2 className="text-sm font-semibold text-slate-700 mb-4">
+        {t("budgetOverview.title")}
+      </h2>
       {displayed.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-8">
-          Belum ada anggaran. Tambahkan di halaman Anggaran.
+          {t("budgetOverview.empty")}
         </p>
       ) : (
         <ul className="space-y-4">
@@ -38,7 +44,7 @@ export default function BudgetOverview({ budgets, showFull }: BudgetOverviewProp
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">{pct}% terpakai</p>
+                <p className="text-xs text-slate-400 mt-0.5">{pct}{t("budgetOverview.used")}</p>
               </li>
             );
           })}

@@ -1,11 +1,16 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
+import { useLang } from "@/lib/i18n/context";
 
 export default function LoginButton() {
+  const { t } = useLang();
+
   return (
     <button
-      onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+      onClick={() =>
+        authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" })
+      }
       className="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
     >
       <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -26,7 +31,7 @@ export default function LoginButton() {
           fill="#EA4335"
         />
       </svg>
-      Masuk dengan Google
+      {t("auth.signInWithGoogle")}
     </button>
   );
 }

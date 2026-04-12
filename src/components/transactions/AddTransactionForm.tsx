@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 import type { Category } from "@/types";
+import { useLang } from "@/lib/i18n/context";
 
 interface AddTransactionFormProps {
   categories: Category[];
@@ -17,6 +18,7 @@ export default function AddTransactionForm({
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const { t } = useLang();
 
   const [form, setForm] = useState({
     categoryId: categories[0]?.id ?? "",
@@ -61,7 +63,7 @@ export default function AddTransactionForm({
         className="flex items-center gap-1.5 bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
       >
         <Plus className="h-4 w-4" />
-        Tambah
+        {t("addTransaction.button")}
       </button>
 
       {open && (
@@ -69,7 +71,7 @@ export default function AddTransactionForm({
           <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold text-slate-800">
-                Tambah Transaksi
+                {t("addTransaction.modalTitle")}
               </h2>
               <button
                 onClick={() => setOpen(false)}
@@ -82,7 +84,7 @@ export default function AddTransactionForm({
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Kategori
+                  {t("addTransaction.category")}
                 </label>
                 <select
                   name="categoryId"
@@ -101,7 +103,7 @@ export default function AddTransactionForm({
               <div className="flex gap-3">
                 <div className="flex-1">
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Nominal
+                    {t("addTransaction.amount")}
                   </label>
                   <input
                     type="number"
@@ -116,7 +118,7 @@ export default function AddTransactionForm({
                 </div>
                 <div className="w-24">
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    Mata uang
+                    {t("addTransaction.currency")}
                   </label>
                   <select
                     name="currency"
@@ -135,21 +137,21 @@ export default function AddTransactionForm({
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Catatan
+                  {t("addTransaction.notes")}
                 </label>
                 <input
                   type="text"
                   name="notes"
                   value={form.notes}
                   onChange={handleChange}
-                  placeholder="Makan siang di warteg"
+                  placeholder={t("addTransaction.notesPlaceholder")}
                   className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Tanggal
+                  {t("addTransaction.date")}
                 </label>
                 <input
                   type="date"
@@ -165,7 +167,7 @@ export default function AddTransactionForm({
                 disabled={isPending}
                 className="w-full bg-indigo-600 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60 text-sm"
               >
-                {isPending ? "Menyimpan..." : "Simpan Transaksi"}
+                {isPending ? t("addTransaction.saving") : t("addTransaction.save")}
               </button>
             </form>
           </div>

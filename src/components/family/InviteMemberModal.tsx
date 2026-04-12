@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { UserPlus, X, Copy, Check } from "lucide-react";
+import { useLang } from "@/lib/i18n/context";
 
 interface InviteMemberModalProps {
   familyId: string;
@@ -13,6 +14,7 @@ export default function InviteMemberModal({ familyId }: InviteMemberModalProps) 
   const [inviteUrl, setInviteUrl] = useState("");
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const { t } = useLang();
 
   function handleGenerate() {
     startTransition(async () => {
@@ -39,7 +41,7 @@ export default function InviteMemberModal({ familyId }: InviteMemberModalProps) 
         className="flex items-center gap-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
       >
         <UserPlus className="h-4 w-4" />
-        Undang Anggota
+        {t("invite.button")}
       </button>
 
       {open && (
@@ -47,7 +49,7 @@ export default function InviteMemberModal({ familyId }: InviteMemberModalProps) 
           <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-xl">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold text-slate-800">
-                Undang Anggota Keluarga
+                {t("invite.modalTitle")}
               </h2>
               <button
                 onClick={() => {
@@ -64,18 +66,16 @@ export default function InviteMemberModal({ familyId }: InviteMemberModalProps) 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Email (opsional)
+                  {t("invite.emailLabel")}
                 </label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="anggota@email.com"
+                  placeholder={t("invite.emailPlaceholder")}
                   className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
-                <p className="text-xs text-slate-400 mt-1">
-                  Kosongkan untuk membuat link undangan umum
-                </p>
+                <p className="text-xs text-slate-400 mt-1">{t("invite.emailHint")}</p>
               </div>
 
               <button
@@ -83,13 +83,13 @@ export default function InviteMemberModal({ familyId }: InviteMemberModalProps) 
                 disabled={isPending}
                 className="w-full bg-indigo-600 text-white font-medium py-2.5 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60 text-sm"
               >
-                {isPending ? "Membuat link..." : "Buat Link Undangan"}
+                {isPending ? t("invite.generating") : t("invite.generate")}
               </button>
 
               {inviteUrl && (
                 <div className="bg-slate-50 rounded-lg p-3 space-y-2">
                   <p className="text-xs text-slate-500 font-medium">
-                    Link undangan (berlaku 7 hari):
+                    {t("invite.linkLabel")}
                   </p>
                   <div className="flex items-center gap-2">
                     <input
@@ -108,9 +108,7 @@ export default function InviteMemberModal({ familyId }: InviteMemberModalProps) 
                       )}
                     </button>
                   </div>
-                  <p className="text-xs text-slate-400">
-                    Bagikan link ini ke anggota keluarga Anda
-                  </p>
+                  <p className="text-xs text-slate-400">{t("invite.linkHint")}</p>
                 </div>
               )}
             </div>

@@ -1,16 +1,13 @@
-import Database from "better-sqlite3";
-import { drizzle } from "drizzle-orm/better-sqlite3";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import postgres from "postgres";
 
-const DATABASE_URL = process.env.DATABASE_URL ?? "./finanshal.db";
+const DATABASE_URL = process.env.DATABASE_URL!;
 
-const sqlite = new Database(DATABASE_URL);
-sqlite.pragma("journal_mode = WAL");
-sqlite.pragma("foreign_keys = ON");
+const client = postgres(DATABASE_URL, { max: 1 });
+const db = drizzle(client);
 
-const db = drizzle(sqlite);
-
-migrate(db, { migrationsFolder: "./drizzle" });
+await migrate(db, { migrationsFolder: "./drizzle" });
 
 console.log("Migrations applied successfully.");
-sqlite.close();
+await client.end();

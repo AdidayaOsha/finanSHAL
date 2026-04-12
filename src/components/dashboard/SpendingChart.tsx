@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import type { SpendingByDay } from "@/types";
+import { useLang } from "@/lib/i18n/context";
 
 interface SpendingChartProps {
   data: SpendingByDay[];
@@ -22,14 +23,16 @@ function formatK(value: number): string {
 }
 
 export default function SpendingChart({ data }: SpendingChartProps) {
+  const { t } = useLang();
+
   return (
     <div className="bg-white rounded-xl border border-slate-200 p-5">
       <h2 className="text-sm font-semibold text-slate-700 mb-4">
-        Tren Pengeluaran Bulan Ini
+        {t("chart.title")}
       </h2>
       {data.length === 0 ? (
         <div className="h-48 flex items-center justify-center text-slate-400 text-sm">
-          Belum ada data pengeluaran bulan ini
+          {t("chart.empty")}
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={200}>
@@ -38,7 +41,7 @@ export default function SpendingChart({ data }: SpendingChartProps) {
             <XAxis
               dataKey="date"
               tick={{ fontSize: 11, fill: "#94a3b8" }}
-              tickFormatter={(d: string) => d.slice(8)} // day only
+              tickFormatter={(d: string) => d.slice(8)}
             />
             <YAxis
               tick={{ fontSize: 11, fill: "#94a3b8" }}
@@ -53,7 +56,7 @@ export default function SpendingChart({ data }: SpendingChartProps) {
                   maximumFractionDigits: 0,
                 }).format(value)
               }
-              labelFormatter={(label: string) => `Tanggal: ${label}`}
+              labelFormatter={(label: string) => `${t("chart.dateLabel")}: ${label}`}
             />
             <Line
               type="monotone"

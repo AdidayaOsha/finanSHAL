@@ -1,4 +1,5 @@
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { transactions, users, categories, budgets } from "@/lib/db/schema";
 import { eq, and, gte, sql } from "drizzle-orm";
@@ -8,15 +9,16 @@ import SpendingChart from "@/components/dashboard/SpendingChart";
 import MemberContributions from "@/components/dashboard/MemberContributions";
 import BudgetOverview from "@/components/dashboard/BudgetOverview";
 import TransactionList from "@/components/dashboard/TransactionList";
+import PageHeader from "@/components/layout/PageHeader";
 
 export default async function DashboardPage() {
-  const session = await auth();
+  const session = await auth.api.getSession({ headers: await headers() });
   const familyId = (session?.user as { familyId?: string })?.familyId;
 
   if (!familyId) {
     return (
       <div className="flex items-center justify-center h-full text-slate-500">
-        Keluarga tidak ditemukan. Hubungi administrator.
+        <PageHeader titleKey="dashboard.noFamily" />
       </div>
     );
   }
@@ -133,12 +135,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Dasbor Keluarga</h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Ringkasan keuangan bulan ini
-        </p>
-      </div>
+      <PageHeader titleKey="dashboard.title" subtitleKey="dashboard.subtitle" />
 
       <SummaryCards
         totalThisMonth={totalThisMonth}

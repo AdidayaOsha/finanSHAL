@@ -1,45 +1,47 @@
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { users, familyGroups } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+"use client";
+
+import { useEffect, useState } from "react";
 import InviteMemberModal from "@/components/family/InviteMemberModal";
+import PageHeader from "@/components/layout/PageHeader";
+import { useLang } from "@/lib/i18n/context";
+import { authClient } from "@/lib/auth-client";
 
-export default async function SettingsPage() {
-  const session = await auth();
+type Member = { id: string; name: string | null; email: string; image: string | null };
+type FamilyData = { familyName: string; members: Member[] };
+
+export default function SettingsPage() {
+  const { t } = useLang();
+  const { data: session } = authClient.useSession();
+  const [data, setData] = useState<FamilyData | null>(null);
+
   const familyId = (session?.user as { familyId?: string })?.familyId;
-  if (!familyId) return null;
 
-  const [family] = await db
-    .select()
-    .from(familyGroups)
-    .where(eq(familyGroups.id, familyId));
-
-  const members = await db
-    .select({ id: users.id, name: users.name, email: users.email, image: users.image })
-    .from(users)
-    .where(eq(users.familyId, familyId));
+  useEffect(() => {
+    if (!familyId) return;
+    fetch("/api/family")
+      .then((r) => r.json())
+      .then((json) => {
+        setData({ familyName: "", members: json.members ?? [] });
+      });
+  }, [familyId]);
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Pengaturan</h1>
-        <p className="text-slate-500 text-sm mt-1">Kelola keluarga dan akun Anda</p>
-      </div>
+      <PageHeader titleKey="settings.title" subtitleKey="settings.subtitle" />
 
       {/* Family info */}
       <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
-        <h2 className="font-semibold text-slate-700">Grup Keluarga</h2>
-        <p className="text-sm text-slate-500">
-          Nama grup: <span className="font-medium text-slate-800">{family?.name}</span>
-        </p>
+        <h2 className="font-semibold text-slate-700">{t("settings.familyGroup")}</h2>
         <div className="space-y-2">
-          <p className="text-sm font-medium text-slate-700">Anggota ({members.length})</p>
+          <p className="text-sm font-medium text-slate-700">
+            {t("settings.members")} ({data?.members.length ?? 0})
+          </p>
           <ul className="space-y-2">
-            {members.map((m) => (
+            {(data?.members ?? []).map((m) => (
               <li key={m.id} className="flex items-center gap-3 text-sm text-slate-600">
                 {m.image && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={m.image!} alt={m.name ?? ""} className="w-7 h-7 rounded-full" />
+                  <img src={m.image} alt={m.name ?? ""} className="w-7 h-7 rounded-full" />
                 )}
                 <div>
                   <p className="font-medium text-slate-800">{m.name}</p>
@@ -49,16 +51,13 @@ export default async function SettingsPage() {
             ))}
           </ul>
         </div>
-        <InviteMemberModal familyId={familyId} />
+        {familyId && <InviteMemberModal familyId={familyId} />}
       </div>
 
       {/* WhatsApp setup hint */}
       <div className="bg-indigo-50 rounded-xl border border-indigo-100 p-5 space-y-2">
-        <h2 className="font-semibold text-indigo-700">Hubungkan WhatsApp</h2>
-        <p className="text-sm text-slate-600">
-          Tambahkan nomor WhatsApp kamu ke profil agar pencatatan via WA langsung
-          terhubung ke akun ini.
-        </p>
+        <h2 className="font-semibold text-indigo-700">{t("settings.connectWhatsApp")}</h2>
+        <p className="text-sm text-slate-600">{t("settings.connectWhatsAppDesc")}</p>
       </div>
     </div>
   );

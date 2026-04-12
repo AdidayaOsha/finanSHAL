@@ -1,12 +1,14 @@
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { budgets, categories, transactions } from "@/lib/db/schema";
 import { eq, and, gte } from "drizzle-orm";
 import { getCurrentMonthYear } from "@/lib/utils";
 import BudgetOverview from "@/components/dashboard/BudgetOverview";
+import PageHeader from "@/components/layout/PageHeader";
 
 export default async function BudgetsPage() {
-  const session = await auth();
+  const session = await auth.api.getSession({ headers: await headers() });
   const familyId = (session?.user as { familyId?: string })?.familyId;
   if (!familyId) return null;
 
@@ -53,12 +55,7 @@ export default async function BudgetsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-800">Anggaran</h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Kelola batas pengeluaran bulanan per kategori
-        </p>
-      </div>
+      <PageHeader titleKey="budgets.title" subtitleKey="budgets.subtitle" />
       <BudgetOverview budgets={budgetsWithSpent} showFull />
     </div>
   );
