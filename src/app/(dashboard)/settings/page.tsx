@@ -7,7 +7,7 @@ import { useLang } from "@/lib/i18n/context";
 import { authClient } from "@/lib/auth-client";
 
 type Member = { id: string; name: string | null; email: string; image: string | null };
-type FamilyData = { familyName: string; members: Member[] };
+type FamilyData = { familyName: string | null; members: Member[] };
 
 export default function SettingsPage() {
   const { t } = useLang();
@@ -21,7 +21,7 @@ export default function SettingsPage() {
     fetch("/api/family")
       .then((r) => r.json())
       .then((json) => {
-        setData({ familyName: "", members: json.members ?? [] });
+        setData({ familyName: json.familyName ?? null, members: json.members ?? [] });
       });
   }, [familyId]);
 
@@ -31,7 +31,12 @@ export default function SettingsPage() {
 
       {/* Family info */}
       <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
-        <h2 className="font-semibold text-slate-700">{t("settings.familyGroup")}</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold text-slate-700">{t("settings.familyGroup")}</h2>
+          {data?.familyName && (
+            <span className="text-sm text-slate-500">{data.familyName}</span>
+          )}
+        </div>
         <div className="space-y-2">
           <p className="text-sm font-medium text-slate-700">
             {t("settings.members")} ({data?.members.length ?? 0})

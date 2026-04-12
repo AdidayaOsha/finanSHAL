@@ -39,11 +39,7 @@ export default async function TransactionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <PageHeader titleKey="transactions.title" subtitleKey="transactions.subtitle" />
-        <AddTransactionForm
-          categories={familyCategories}
-          userId={(session?.user?.id as string) ?? ""}
-          familyId={familyId}
-        />
+        <AddTransactionForm categories={familyCategories} />
       </div>
       <TransactionList transactions={allTransactions} showAll />
     </div>

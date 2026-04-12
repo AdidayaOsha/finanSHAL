@@ -5,6 +5,7 @@ import { budgets, categories, transactions } from "@/lib/db/schema";
 import { eq, and, gte } from "drizzle-orm";
 import { getCurrentMonthYear } from "@/lib/utils";
 import BudgetOverview from "@/components/dashboard/BudgetOverview";
+import SetBudgetModal from "@/components/budgets/SetBudgetModal";
 import PageHeader from "@/components/layout/PageHeader";
 
 export default async function BudgetsPage() {
@@ -16,27 +17,34 @@ export default async function BudgetsPage() {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const budgetRows = await db
-    .select({
-      id: budgets.id,
-      familyId: budgets.familyId,
-      categoryId: budgets.categoryId,
-      limitAmount: budgets.limitAmount,
-      monthYear: budgets.monthYear,
-      categoryName: categories.name,
-    })
-    .from(budgets)
-    .leftJoin(categories, eq(budgets.categoryId, categories.id))
-    .where(and(eq(budgets.familyId, familyId), eq(budgets.monthYear, monthYear)));
+  const [budgetRows, txRows, familyCategories] = await Promise.all([
+    db
+      .select({
+        id: budgets.id,
+        familyId: budgets.familyId,
+        categoryId: budgets.categoryId,
+        limitAmount: budgets.limitAmount,
+        monthYear: budgets.monthYear,
+        categoryName: categories.name,
+      })
+      .from(budgets)
+      .leftJoin(categories, eq(budgets.categoryId, categories.id))
+      .where(and(eq(budgets.familyId, familyId), eq(budgets.monthYear, monthYear))),
 
-  const txRows = await db
-    .select({
-      categoryId: transactions.categoryId,
-      amount: transactions.amount,
-      currency: transactions.currency,
-    })
-    .from(transactions)
-    .where(and(eq(transactions.familyId, familyId), gte(transactions.date, startOfMonth)));
+    db
+      .select({
+        categoryId: transactions.categoryId,
+        amount: transactions.amount,
+        currency: transactions.currency,
+      })
+      .from(transactions)
+      .where(and(eq(transactions.familyId, familyId), gte(transactions.date, startOfMonth))),
+
+    db
+      .select({ id: categories.id, familyId: categories.familyId, name: categories.name, type: categories.type })
+      .from(categories)
+      .where(eq(categories.familyId, familyId)),
+  ]);
 
   const spentByCategoryId = txRows.reduce(
     (acc, t) => {
@@ -49,13 +57,16 @@ export default async function BudgetsPage() {
 
   const budgetsWithSpent = budgetRows.map((b) => ({
     ...b,
-    categoryName: b.categoryName ?? "Lainnya",
+    categoryName: b.categoryName ?? "Other",
     spent: spentByCategoryId[b.categoryId] ?? 0,
   }));
 
   return (
     <div className="space-y-6">
-      <PageHeader titleKey="budgets.title" subtitleKey="budgets.subtitle" />
+      <div className="flex items-center justify-between">
+        <PageHeader titleKey="budgets.title" subtitleKey="budgets.subtitle" />
+        <SetBudgetModal categories={familyCategories} />
+      </div>
       <BudgetOverview budgets={budgetsWithSpent} showFull />
     </div>
   );

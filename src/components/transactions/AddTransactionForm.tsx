@@ -8,13 +8,9 @@ import { useLang } from "@/lib/i18n/context";
 
 interface AddTransactionFormProps {
   categories: Category[];
-  userId: string;
-  familyId: string;
 }
 
-export default function AddTransactionForm({
-  categories,
-}: AddTransactionFormProps) {
+export default function AddTransactionForm({ categories }: AddTransactionFormProps) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
