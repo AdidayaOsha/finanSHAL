@@ -10,6 +10,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file=.env.local src/lib/db/migrate.ts",
     "db:seed": "tsx --env-file=.env.local src/lib/db/seed-run.ts",
+    "db:seed-dummy": "tsx --env-file=.env.local src/lib/db/seed-dummy.ts",
     "db:studio": "dotenv -e .env.local -- drizzle-kit studio"
   },
   "dependencies": {

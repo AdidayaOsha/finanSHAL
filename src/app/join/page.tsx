@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useLang } from "@/lib/i18n/context";
 import { authClient } from "@/lib/auth-client";
 
-type Status = "loading" | "success" | "error" | "unauthenticated";
+type Status = "loading" | "success" | "error";
 
-export default function JoinPage() {
+function JoinContent() {
   const { t } = useLang();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -20,7 +20,6 @@ export default function JoinPage() {
     if (isPending) return;
 
     if (!session) {
-      // Redirect to login, then come back to this URL after auth
       router.push(`/login?callbackUrl=/join?token=${token}`);
       return;
     }
@@ -32,9 +31,7 @@ export default function JoinPage() {
 
     fetch(`/api/family/invite?token=${encodeURIComponent(token)}`)
       .then((r) => r.json())
-      .then((data) => {
-        setStatus(data.success ? "success" : "error");
-      })
+      .then((data) => setStatus(data.success ? "success" : "error"))
       .catch(() => setStatus("error"));
   }, [token, session, isPending, router]);
 
@@ -72,5 +69,13 @@ export default function JoinPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function JoinPage() {
+  return (
+    <Suspense>
+      <JoinContent />
+    </Suspense>
   );
 }

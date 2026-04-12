@@ -16,6 +16,20 @@ export const auth = betterAuth({
       verification: verifications,
     },
   }),
+  user: {
+    additionalFields: {
+      familyId: {
+        type: "string",
+        nullable: true,
+        input: false,
+      },
+      phoneNumber: {
+        type: "string",
+        nullable: true,
+        input: false,
+      },
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
