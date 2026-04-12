@@ -2,12 +2,17 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 
-const DATABASE_URL = process.env.DATABASE_URL!;
+async function main() {
+  const client = postgres(process.env.DATABASE_URL!, { max: 1 });
+  const db = drizzle(client);
 
-const client = postgres(DATABASE_URL, { max: 1 });
-const db = drizzle(client);
+  await migrate(db, { migrationsFolder: "./drizzle" });
 
-await migrate(db, { migrationsFolder: "./drizzle" });
+  console.log("Migrations applied successfully.");
+  await client.end();
+}
 
-console.log("Migrations applied successfully.");
-await client.end();
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

@@ -13,7 +13,6 @@ build/
 *.db
 *.db-shm
 *.db-wal
-drizzle/
 
 # Environment files
 .env
