@@ -34,6 +34,7 @@ export type Transaction = {
   // joined fields
   userName?: string | null;
   categoryName?: string | null;
+  categoryType?: "expense" | "savings" | null;
 };
 
 export type Budget = {

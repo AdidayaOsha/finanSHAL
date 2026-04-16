@@ -141,6 +141,15 @@ const translations = {
       category: "Category",
       member: "Member",
     },
+    filters: {
+      all: "All",
+      expense: "Expense",
+      savings: "Savings",
+      dateFrom: "From",
+      dateTo: "To",
+      allMembers: "All Members",
+      filterByMember: "Member",
+    },
   },
   id: {
     nav: {
@@ -281,6 +290,15 @@ const translations = {
       notes: "Catatan",
       category: "Kategori",
       member: "Anggota",
+    },
+    filters: {
+      all: "Semua",
+      expense: "Pengeluaran",
+      savings: "Tabungan",
+      dateFrom: "Dari",
+      dateTo: "Sampai",
+      allMembers: "Semua Anggota",
+      filterByMember: "Anggota",
     },
   },
 } as const;

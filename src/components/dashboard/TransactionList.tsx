@@ -32,7 +32,16 @@ export default function TransactionList({
                 <p className="text-sm font-medium text-slate-800 truncate">
                   {tx.notes ?? "—"}
                 </p>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1.5">
+                  {tx.categoryType && (
+                    <span
+                      className={`inline-block w-1.5 h-1.5 rounded-full shrink-0 ${
+                        tx.categoryType === "savings"
+                          ? "bg-emerald-400"
+                          : "bg-red-400"
+                      }`}
+                    />
+                  )}
                   {tx.categoryName} · {tx.userName} ·{" "}
                   {tx.date ? formatDate(tx.date) : ""}
                 </p>
