@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import LoginButton from "@/components/auth/LoginButton";
+import EmailPasswordForm from "@/components/auth/EmailPasswordForm";
 import { useLang } from "@/lib/i18n/context";
 
 export default function LoginPage() {
@@ -14,6 +16,18 @@ export default function LoginPage() {
           <p className="text-slate-500 text-sm mt-1">{t("auth.signInTitle")}</p>
         </div>
         <LoginButton />
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-px bg-slate-200" />
+          <span className="text-xs text-slate-400 font-medium">{t("auth.or")}</span>
+          <div className="flex-1 h-px bg-slate-200" />
+        </div>
+        <EmailPasswordForm mode="signin" />
+        <p className="text-xs text-slate-500">
+          {t("auth.noAccount")}{" "}
+          <Link href="/register" className="text-indigo-600 hover:underline font-medium">
+            {t("auth.register")}
+          </Link>
+        </p>
         <p className="text-xs text-slate-400">{t("auth.signInDisclaimer")}</p>
       </div>
     </main>

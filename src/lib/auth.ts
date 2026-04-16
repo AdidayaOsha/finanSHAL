@@ -30,6 +30,7 @@ export const auth = betterAuth({
       },
     },
   },
+  emailAndPassword: { enabled: true },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -60,6 +61,10 @@ export const auth = betterAuth({
   },
   trustedOrigins: [
     process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+    ...(process.env.NEXT_PUBLIC_APP_URL &&
+    process.env.NEXT_PUBLIC_APP_URL !== process.env.BETTER_AUTH_URL
+      ? [process.env.NEXT_PUBLIC_APP_URL]
+      : []),
     ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS
       ? process.env.BETTER_AUTH_TRUSTED_ORIGINS.split(",").map((o) => o.trim())
       : []),
